@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="stylesheet" href="/style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -300,6 +301,7 @@
                             <th>Category</th>
                             <th>Description</th>
                             <th>Date</th>
+                            <th>Action</th>
                         </tr>
 
                     </thead>
@@ -342,11 +344,21 @@
                                 <td>
                                     <%= transaction.description || "-" %>
                                 </td>
-
-
                                 <td>
-                                    <%= transaction.transaction_date %>
+                                    <a href="/transaction/edit/<%= transaction.id %>">
+                                        <button type="button">Edit</button>
+                                    </a>
+
+                                    <form action="/transaction/delete/<%= transaction.id %>"
+                                        method="POST"
+                                        style="display:inline;">
+
+                                        <button type="submit">Delete</button>
+
+                                    </form>
                                 </td>
+                                </form>
+                            </td>
 
                             </tr>
 
