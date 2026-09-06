@@ -1,37 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Edit Transaction</title>
 </head>
 
 <body>
 
-    <h1>Edit Transaction</h1>
+    <h1>Personal Finance Manager</h1>
 
-    <form
-        action="/transaction/edit/<%= transaction.id %>"
-        method="POST"
-    >
+    <h2>Edit Transaction</h2>
+
+    <form action="/transaction/edit/<%= transaction.id %>" method="POST">
 
         <label>Type:</label>
-
         <select name="type" required>
 
-            <option
-                value="income"
-                <%= transaction.type === "income" ? "selected" : "" %>
-            >
+            <option value="income"
+                <%= transaction.type === "income" ? "selected" : "" %>>
                 Income
             </option>
 
-            <option
-                value="expense"
-                <%= transaction.type === "expense" ? "selected" : "" %>
-            >
+            <option value="expense"
+                <%= transaction.type === "expense" ? "selected" : "" %>>
                 Expense
             </option>
 
@@ -39,9 +30,7 @@
 
         <br><br>
 
-
         <label>Amount:</label>
-
         <input
             type="number"
             name="amount"
@@ -52,9 +41,7 @@
 
         <br><br>
 
-
         <label>Category:</label>
-
         <input
             type="text"
             name="category"
@@ -64,9 +51,7 @@
 
         <br><br>
 
-
         <label>Description:</label>
-
         <input
             type="text"
             name="description"
@@ -75,30 +60,23 @@
 
         <br><br>
 
-
         <label>Date:</label>
-
         <input
             type="date"
             name="transaction_date"
-            value="<%= transaction.transaction_date.toISOString().split('T')[0] %>"
+            value="<%= transaction.transaction_date ? new Date(transaction.transaction_date).toISOString().split('T')[0] : '' %>"
             required
         >
 
         <br><br>
 
-
-        <button type="submit">
-            Update Transaction
-        </button>
+        <button type="submit">Update Transaction</button>
 
     </form>
 
     <br>
 
-    <a href="/dashboard">
-        ← Back to Dashboard
-    </a>
+    <a href="/dashboard">Back to Dashboard</a>
 
 </body>
 

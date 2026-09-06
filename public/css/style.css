@@ -239,3 +239,38 @@ td {
         font-size: 27px;
     }
 }
+
+/* Search & Filter */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-bar input,
+.filter-bar select {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.filter-bar input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.filter-bar button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #6b7280;
+    color: white;
+    cursor: pointer;
+}
+
+.filter-bar button:hover {
+    background: #4b5563;
+}

@@ -146,7 +146,7 @@ router.post("/transaction/update/:id", (req, res) => {
         }
     );
 });
-module.exports = router;
+
 
 // Show edit transaction form
 router.get("/transaction/edit/:id", (req, res) => {
@@ -215,3 +215,21 @@ router.post("/transaction/edit/:id", (req, res) => {
         }
     );
 });
+
+// Delete transaction
+router.post("/transaction/delete/:id", (req, res) => {
+    const transactionId = req.params.id;
+
+    const sql = "DELETE FROM transactions WHERE id = ?";
+
+    db.query(sql, [transactionId], (err) => {
+        if (err) {
+            console.log("Delete Transaction Error:", err);
+            return res.send("Failed to delete transaction");
+        }
+
+        res.redirect("/dashboard");
+    });
+});
+
+module.exports = router;
