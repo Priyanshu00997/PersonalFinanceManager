@@ -194,6 +194,48 @@
                 min-width: 650px;
             }
         }
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .transaction-header h2 {
+            margin: 0;
+        }
+
+        .transaction-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .view-all-btn {
+            background: #16a34a;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .view-all-btn:hover {
+            background: #15803d;
+        }
+
+        .add-btn {
+            background: #2563eb;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .add-btn:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
 
@@ -270,17 +312,20 @@
 
 
         <!-- Recent Transactions -->
-        <div class="transactions">
+        <div class="transaction-header">
 
-            <div class="transactions-header">
+            <h2>Recent Transactions</h2>
 
-                <h2>Recent Transactions</h2>
+            <div class="transaction-buttons">
+                <a href="/transactions" class="view-all-btn">
+                    View All Transactions
+                </a>
 
                 <a href="/transaction" class="add-btn">
                     + Add Transaction
                 </a>
-
             </div>
+        </div>
             <!-- Search & Filter -->
             <div class="filter-bar">
 
@@ -321,7 +366,7 @@
 
             <% } else { %>
 
-                <table>
+                <table id="transactionTable">
 
                     <thead>
 
