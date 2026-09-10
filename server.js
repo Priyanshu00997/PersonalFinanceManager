@@ -2,12 +2,14 @@ const express = require("express");
 const path = require("path");
 
 require("dotenv").config();
+
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const incomeRoutes = require("./routes/incomeRoutes");
+const expenseRoutes = require("./routes/ExpenseRoutes");
+
 const db = require("./config/db");
-
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +33,8 @@ app.get("/", (req, res) => {
 // Application routes
 app.use("/", authRoutes);
 app.use("/", transactionRoutes);
+app.use("/", incomeRoutes);
+app.use("/", expenseRoutes);
 app.use("/", dashboardRoutes);
 
 // Start server
