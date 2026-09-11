@@ -31,6 +31,12 @@ app.get("/", (req, res) => {
 });
 
 // Application routes
+console.log("authRoutes:", typeof authRoutes);
+console.log("transactionRoutes:", typeof transactionRoutes);
+console.log("incomeRoutes:", typeof incomeRoutes);
+console.log("expenseRoutes:", typeof expenseRoutes);
+console.log("dashboardRoutes:", typeof dashboardRoutes);
+
 app.use("/", authRoutes);
 app.use("/", transactionRoutes);
 app.use("/", incomeRoutes);

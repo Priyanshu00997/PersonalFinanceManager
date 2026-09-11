@@ -236,6 +236,39 @@
         .add-btn:hover {
             background: #1d4ed8;
         }
+
+        .income-btn {
+            background: #16a34a;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .income-btn:hover {
+            background: #15803d;
+        }
+
+        .expense-btn {
+            background: #dc2626;
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .expense-btn:hover {
+            background: #b91c1c;
+        }
+
+        .transaction-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 
@@ -312,24 +345,27 @@
 
 
         <!-- Recent Transactions -->
-        <div class="transaction-header">
+            <div class="transactions-header">
 
-            <h2>Recent Transactions</h2>
+                <h2>Recent Transactions</h2>
 
-            <div class="transaction-buttons">
-                <a href="/transactions" class="view-all-btn">
-                    View All Transactions
-                </a>
+                <div class="transaction-buttons">
 
-                <a href="/income" class="income-btn">
-                    + Add Income
-                </a>
+                    <a href="/transactions" class="view-all-btn">
+                        View All Transactions
+                    </a>
 
-                <a href="/expense" class="expense-btn">
-                    + Add Expense
-                </a>
+                    <a href="/income" class="income-btn">
+                        + Add Income
+                    </a>
+
+                    <a href="/expense" class="expense-btn">
+                        + Add Expense
+                    </a>
+
+                </div>
+
             </div>
-        </div>
             <!-- Search & Filter -->
             <div class="filter-bar">
 
