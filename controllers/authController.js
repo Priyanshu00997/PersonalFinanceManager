@@ -63,7 +63,7 @@ exports.loginUser = (req, res) => {
 };
 exports.showDashboard = (req, res) => {
 
-    const userId = 1; // temporary: current test user
+    const userId = 1;
 
     const summarySql = `
         SELECT
@@ -81,12 +81,25 @@ exports.showDashboard = (req, res) => {
         LIMIT 5
     `;
 
+    const categorySql = `
+        SELECT
+            category,
+            SUM(amount) AS total
+        FROM transactions
+        WHERE user_id = ?
+        AND type = 'expense'
+        GROUP BY category
+        ORDER BY total DESC
+    `;
+
+
     db.query(summarySql, [userId], (err, summaryResult) => {
 
         if (err) {
             console.log("Dashboard Summary Error:", err);
             return res.send("Dashboard Database Error");
         }
+
 
         db.query(recentSql, [userId], (err, recentTransactions) => {
 
@@ -95,23 +108,48 @@ exports.showDashboard = (req, res) => {
                 return res.send("Dashboard Database Error");
             }
 
-            const totalIncome = Number(summaryResult[0].totalIncome);
-            const totalExpense = Number(summaryResult[0].totalExpense);
-            const balance = totalIncome - totalExpense;
 
-            console.log("Dashboard Summary:");
-            console.log("Income:", totalIncome);
-            console.log("Expense:", totalExpense);
-            console.log("Balance:", balance);
-            console.log("Recent Transactions:", recentTransactions);
+            db.query(categorySql, [userId], (err, categoryResult) => {
 
-            res.render("dashboard", {
-                totalIncome,
-                totalExpense,
-                balance,
-                recentTransactions
+                if (err) {
+                    console.log("Category Chart Error:", err);
+                    return res.send("Dashboard Database Error");
+                }
+
+
+                const totalIncome =
+                    Number(summaryResult[0].totalIncome);
+
+                const totalExpense =
+                    Number(summaryResult[0].totalExpense);
+
+                const balance =
+                    totalIncome - totalExpense;
+
+
+                const categoryLabels =
+                    categoryResult.map(item => item.category);
+
+                const categoryValues =
+                    categoryResult.map(item => Number(item.total));
+
+
+                res.render("dashboard", {
+
+                    totalIncome,
+                    totalExpense,
+                    balance,
+                    recentTransactions,
+
+                    categoryLabels,
+                    categoryValues
+
+                });
+
             });
 
         });
+
     });
+
 };

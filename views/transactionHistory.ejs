@@ -1,200 +1,775 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>All Transactions</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>All Transactions - Personal Finance Manager</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fa;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 30px;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+            padding: 35px 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: auto;
             background: white;
-            padding: 30px;
+            padding: 28px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
         }
 
-        h1 {
-            margin-bottom: 20px;
+        /* Header */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .header h1 {
+            font-size: 27px;
+            color: #111827;
         }
 
         .back-btn {
-            display: inline-block;
             background: #2563eb;
             color: white;
-            padding: 10px 18px;
+            padding: 10px 16px;
             text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Filter */
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            background: white;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.10);
+        }
+
+        .clear-btn {
+            border: none;
+            background: #6b7280;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .clear-btn:hover {
+            background: #4b5563;
+        }
+
+        /* Result count */
+
+        .result-info {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        /* Table */
+
+        .table-container {
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 750px;
         }
 
         th {
-            background: #f1f3f5;
-            padding: 14px;
+            background: #f3f4f6;
+            color: #4b5563;
+            padding: 13px;
             text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         td {
-            padding: 14px;
-            border-bottom: 1px solid #ddd;
+            padding: 14px 13px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
         }
 
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Type */
+
         .income {
-            color: #16a34a;
+            color: #15803d;
+            background: #dcfce7;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: bold;
+            display: inline-block;
         }
 
         .expense {
-            color: #dc2626;
+            color: #b91c1c;
+            background: #fee2e2;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: bold;
+            display: inline-block;
         }
+
+        /* Buttons */
 
         .edit-btn {
             background: #2563eb;
             color: white;
-            padding: 6px 10px;
+            padding: 7px 10px;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .edit-btn:hover {
+            background: #1d4ed8;
         }
 
         .delete-btn {
-            background: #dc2626;
+            background: #ef4444;
             color: white;
             border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
+            padding: 7px 10px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 12px;
+            margin-left: 4px;
         }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        /* No results */
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+            display: none;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 768px) {
+
+            body {
+                padding: 20px 12px;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .back-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .filter-bar input,
+            .filter-bar select,
+            .clear-btn {
+                width: 100%;
+            }
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
 <div class="container">
 
-    <h1>All Transactions</h1>
 
-    <a href="/dashboard" class="back-btn">
-        ← Back to Dashboard
-    </a>
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>
+            📋 All Transactions
+        </h1>
+
+        <a href="/dashboard" class="back-btn">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- FILTER BAR -->
+
+    <div class="filter-bar">
+
+        <input
+            type="text"
+            id="searchInput"
+            class="search-box"
+            placeholder="🔍 Search by category or description..."
+        >
+
+
+        <select id="typeFilter">
+
+            <option value="all">
+                All Types
+            </option>
+
+            <option value="income">
+                Income
+            </option>
+
+            <option value="expense">
+                Expense
+            </option>
+
+        </select>
+
+
+        <select id="categoryFilter">
+
+            <option value="all">
+                All Categories
+            </option>
+
+            <option value="Food">
+                Food
+            </option>
+
+            <option value="Shopping">
+                Shopping
+            </option>
+
+            <option value="Salary">
+                Salary
+            </option>
+
+            <option value="Rent">
+                Rent
+            </option>
+
+            <option value="Event">
+                Event
+            </option>
+
+            <option value="Entertainment">
+                Entertainment
+            </option>
+
+            <option value="Transport">
+                Transport
+            </option>
+
+            <option value="Bills">
+                Bills
+            </option>
+
+            <option value="Travel">
+                Travel
+            </option>
+
+            <option value="Education">
+                Education
+            </option>
+
+            <option value="Freelance">
+                Freelance
+            </option>
+
+            <option value="Business">
+                Business
+            </option>
+
+            <option value="Stock/Investment">
+                Stock/Investment
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+
+        <input
+            type="date"
+            id="fromDate"
+            title="From Date"
+        >
+
+
+        <input
+            type="date"
+            id="toDate"
+            title="To Date"
+        >
+
+
+        <button
+            type="button"
+            class="clear-btn"
+            id="clearFilters"
+        >
+            Clear
+        </button>
+
+    </div>
+
+
+    <!-- RESULT COUNT -->
+
+    <div class="result-info">
+
+        Showing
+        <strong id="resultCount"><%= transactions.length %></strong>
+        transaction(s)
+
+    </div>
+
+
+    <!-- TABLE -->
 
     <% if (transactions.length === 0) { %>
 
-        <p>No transactions found.</p>
+        <p class="no-results" style="display:block;">
+            No transactions found.
+        </p>
 
     <% } else { %>
 
-        <table>
+        <div class="table-container">
 
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
+            <table id="transactionTable">
 
-            <tbody>
-
-                <% transactions.forEach(transaction => { %>
+                <thead>
 
                     <tr>
 
-                        <td class="<%= transaction.type === 'income' ? 'income' : 'expense' %>">
-                            <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
-                        </td>
-
-                        <td>
-                            ₹<%= Number(transaction.amount).toFixed(2) %>
-                        </td>
-
-                        <td>
-                            <%= transaction.category %>
-                        </td>
-
-                        <td>
-                            <%= transaction.description || '-' %>
-                        </td>
-
-                        <td>
-
-                            <a
-                                href="/transaction/edit/<%= transaction.id %>"
-                                class="edit-btn">
-                                Edit
-                            </a>
-
-                            <form
-                                action="/transaction/delete/<%= transaction.id %>"
-                                method="POST"
-                                class="delete-form"
-                                style="display:inline;">
-
-                                <button
-                                    type="submit"
-                                    class="delete-btn">
-                                    Delete
-                                </button>
-
-                            </form>
-
-                        </td>
-
-                        <td>
-                            <%= new Date(transaction.transaction_date).toLocaleString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit"
-                            }) %>
-                        </td>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                        <th>Date</th>
 
                     </tr>
 
-                <% }) %>
+                </thead>
 
-            </tbody>
 
-        </table>
+                <tbody>
+
+                    <% transactions.forEach(transaction => { %>
+
+                        <tr
+                            data-type="<%= transaction.type %>"
+                            data-category="<%= transaction.category %>"
+                            data-date="<%= new Date(transaction.transaction_date).toISOString().split('T')[0] %>"
+                        >
+
+                            <!-- Type -->
+
+                            <td>
+
+                                <span class="<%= transaction.type === 'income' ? 'income' : 'expense' %>">
+
+                                    <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Amount -->
+
+                            <td>
+
+                                ₹<%= Number(transaction.amount).toFixed(2) %>
+
+                            </td>
+
+
+                            <!-- Category -->
+
+                            <td>
+
+                                <%= transaction.category %>
+
+                            </td>
+
+
+                            <!-- Description -->
+
+                            <td>
+
+                                <%= transaction.description || '-' %>
+
+                            </td>
+
+
+                            <!-- Action -->
+
+                            <td>
+
+                                <a
+                                    href="/transaction/edit/<%= transaction.id %>"
+                                    class="edit-btn"
+                                >
+                                    Edit
+                                </a>
+
+
+                                <form
+                                    action="/transaction/delete/<%= transaction.id %>"
+                                    method="POST"
+                                    class="delete-form"
+                                    style="display:inline;"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="delete-btn"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+
+                            <!-- Date -->
+
+                            <td>
+
+                                <%= new Date(transaction.transaction_date).toLocaleString("en-IN", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                }) %>
+
+                            </td>
+
+                        </tr>
+
+                    <% }) %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <p id="noResults" class="no-results">
+            No transactions match your filters.
+        </p>
 
     <% } %>
 
+
 </div>
+
 
 <script>
 
-document.querySelectorAll(".delete-form").forEach(function(form) {
+    const searchInput =
+        document.getElementById("searchInput");
 
-    form.addEventListener("submit", function(event) {
+    const typeFilter =
+        document.getElementById("typeFilter");
 
-        const confirmed = confirm(
-            "Are you sure you want to delete this transaction?"
-        );
+    const categoryFilter =
+        document.getElementById("categoryFilter");
 
-        if (!confirmed) {
-            event.preventDefault();
+    const fromDate =
+        document.getElementById("fromDate");
+
+    const toDate =
+        document.getElementById("toDate");
+
+    const clearFilters =
+        document.getElementById("clearFilters");
+
+    const resultCount =
+        document.getElementById("resultCount");
+
+    const noResults =
+        document.getElementById("noResults");
+
+
+    function filterTransactions() {
+
+        const searchText =
+            searchInput.value.toLowerCase().trim();
+
+        const selectedType =
+            typeFilter.value.toLowerCase();
+
+        const selectedCategory =
+            categoryFilter.value.toLowerCase();
+
+        const from =
+            fromDate.value;
+
+        const to =
+            toDate.value;
+
+
+        const rows =
+            document.querySelectorAll(
+                "#transactionTable tbody tr"
+            );
+
+
+        let visibleCount = 0;
+
+
+        rows.forEach(function(row) {
+
+            const type =
+                row.dataset.type.toLowerCase();
+
+            const category =
+                row.dataset.category.toLowerCase();
+
+            const description =
+                row.cells[3].innerText.toLowerCase();
+
+            const date =
+                row.dataset.date;
+
+
+            /* Search */
+
+            const matchesSearch =
+                category.includes(searchText) ||
+                description.includes(searchText) ||
+                type.includes(searchText);
+
+
+            /* Type */
+
+            const matchesType =
+                selectedType === "all" ||
+                type === selectedType;
+
+
+            /* Category */
+
+            const matchesCategory =
+                selectedCategory === "all" ||
+                category === selectedCategory;
+
+
+            /* Date */
+
+            const matchesFromDate =
+                !from ||
+                date >= from;
+
+
+            const matchesToDate =
+                !to ||
+                date <= to;
+
+
+            if (
+                matchesSearch &&
+                matchesType &&
+                matchesCategory &&
+                matchesFromDate &&
+                matchesToDate
+            ) {
+
+                row.style.display = "";
+
+                visibleCount++;
+
+            } else {
+
+                row.style.display = "none";
+
+            }
+
+        });
+
+
+        resultCount.innerText =
+            visibleCount;
+
+
+        if (noResults) {
+
+            if (visibleCount === 0) {
+
+                noResults.style.display = "block";
+
+            } else {
+
+                noResults.style.display = "none";
+
+            }
+
         }
 
-    });
+    }
 
-});
+
+    /* Events */
+
+    searchInput.addEventListener(
+        "input",
+        filterTransactions
+    );
+
+    typeFilter.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    categoryFilter.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    fromDate.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    toDate.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+
+    /* Clear */
+
+    clearFilters.addEventListener(
+        "click",
+        function() {
+
+            searchInput.value = "";
+
+            typeFilter.value = "all";
+
+            categoryFilter.value = "all";
+
+            fromDate.value = "";
+
+            toDate.value = "";
+
+            filterTransactions();
+
+        }
+    );
+
+
+    /* Delete confirmation */
+
+    document.querySelectorAll(".delete-form")
+        .forEach(function(form) {
+
+            form.addEventListener(
+                "submit",
+                function(event) {
+
+                    const confirmed = confirm(
+                        "Are you sure you want to delete this transaction?"
+                    );
+
+                    if (!confirmed) {
+
+                        event.preventDefault();
+
+                    }
+
+                }
+            );
+
+        });
 
 </script>
 
+
 </body>
+
 </html>
