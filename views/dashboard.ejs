@@ -488,6 +488,7 @@
             }
 
         }
+        
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -1110,6 +1111,173 @@
             });
 
         }
+
+                searchInput.addEventListener(
+            "input",
+            filterTransactions
+        );
+
+
+        typeFilter.addEventListener(
+            "change",
+            filterTransactions
+        );
+
+
+        categoryFilter.addEventListener(
+            "change",
+            filterTransactions
+        );
+
+
+        clearFilters.addEventListener(
+            "click",
+            function() {
+
+                searchInput.value = "";
+
+                typeFilter.value = "all";
+
+                categoryFilter.value = "all";
+
+                filterTransactions();
+
+            }
+        );
+
+
+        /* ================= EXPENSE PIE CHART ================= */
+
+        const expenseLabels =
+            <%- JSON.stringify(categoryLabels) %>;
+
+        const expenseValues =
+            <%- JSON.stringify(categoryValues) %>;
+
+
+        const expenseChartCanvas =
+            document.getElementById("expenseChart");
+
+
+        if (expenseChartCanvas && expenseLabels.length > 0) {
+
+            new Chart(expenseChartCanvas, {
+
+                type: "pie",
+
+                data: {
+
+                    labels: expenseLabels,
+
+                    datasets: [{
+
+                        data: expenseValues,
+
+                        borderWidth: 2
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom"
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+
+        /* ================= INCOME VS EXPENSE ================= */
+
+        const incomeExpenseCanvas =
+            document.getElementById("incomeExpenseChart");
+
+
+        if (incomeExpenseCanvas) {
+
+            new Chart(incomeExpenseCanvas, {
+
+                type: "bar",
+
+                data: {
+
+                    labels: [
+                        "Income",
+                        "Expense"
+                    ],
+
+                    datasets: [{
+
+                        label: "Amount",
+
+                        data: [
+                            <%= Number(totalIncome) %>,
+                            <%= Number(totalExpense) %>
+                        ],
+
+                        borderWidth: 1
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            ticks: {
+
+                                callback: function(value) {
+
+                                    return "₹" + value;
+
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
     </script>
 
 </body>
