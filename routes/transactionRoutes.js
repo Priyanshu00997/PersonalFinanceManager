@@ -82,15 +82,51 @@ router.post("/transaction", (req, res) => {
 // ===============================
 router.get("/transaction/edit/:id", (req, res) => {
 
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+
+    const userId = req.session.userId;
+    const sharedAccountId = req.session.sharedAccountId || null;
     const transactionId = req.params.id;
 
-    const sql = `
-        SELECT *
-        FROM transactions
-        WHERE id = ?
-    `;
 
-    db.query(sql, [transactionId], (err, results) => {
+    let sql;
+    let params;
+
+
+    if (sharedAccountId) {
+
+        sql = `
+            SELECT *
+            FROM transactions
+            WHERE id = ?
+            AND shared_account_id = ?
+        `;
+
+        params = [
+            transactionId,
+            sharedAccountId
+        ];
+
+    } else {
+
+        sql = `
+            SELECT *
+            FROM transactions
+            WHERE id = ?
+            AND user_id = ?
+            AND shared_account_id IS NULL
+        `;
+
+        params = [
+            transactionId,
+            userId
+        ];
+    }
+
+
+    db.query(sql, params, (err, results) => {
 
         if (err) {
             console.log("Edit Load Error:", err);
@@ -104,9 +140,10 @@ router.get("/transaction/edit/:id", (req, res) => {
         res.render("editTransaction", {
             transaction: results[0]
         });
-    });
-});
 
+    });
+
+});
 
 // ===============================
 // Update Transaction

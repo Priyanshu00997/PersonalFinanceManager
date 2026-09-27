@@ -106,6 +106,7 @@ exports.loginUser = (req, res) => {
         );
     });
 };
+
 exports.showDashboard = (req, res) => {
 
     // Check if user is logged in
@@ -235,7 +236,9 @@ exports.showDashboard = (req, res) => {
                         recentTransactions,
 
                         categoryLabels,
-                        categoryValues
+                        categoryValues,
+
+                        sharedAccount: null
 
                     });
 
@@ -310,14 +313,42 @@ exports.showDashboard = (req, res) => {
     `;
 
 
+    // Get shared account details
+    const accountSql = `
+        SELECT
+            sa.id,
+            sa.account_name,
+            sa.invite_code,
+            COUNT(sam.user_id) AS memberCount
+
+        FROM shared_accounts sa
+
+        LEFT JOIN shared_account_members sam
+            ON sa.id = sam.shared_account_id
+
+        WHERE sa.id = ?
+
+        GROUP BY
+            sa.id,
+            sa.account_name,
+            sa.invite_code
+    `;
+
+
     db.query(
         summarySql,
         [sharedAccountId],
         (err, summaryResult) => {
 
             if (err) {
-                console.log("Shared Dashboard Summary Error:", err);
-                return res.send("Dashboard Database Error");
+                console.log(
+                    "Shared Dashboard Summary Error:",
+                    err
+                );
+
+                return res.send(
+                    "Dashboard Database Error"
+                );
             }
 
 
@@ -355,45 +386,73 @@ exports.showDashboard = (req, res) => {
                             }
 
 
-                            const totalIncome =
-                                Number(
-                                    summaryResult[0].totalIncome
-                                );
+                            db.query(
+                                accountSql,
+                                [sharedAccountId],
+                                (err, accountResult) => {
+
+                                    if (err) {
+                                        console.log(
+                                            "Shared Account Details Error:",
+                                            err
+                                        );
+
+                                        return res.send(
+                                            "Dashboard Database Error"
+                                        );
+                                    }
 
 
-                            const totalExpense =
-                                Number(
-                                    summaryResult[0].totalExpense
-                                );
+                                    const sharedAccount =
+                                        accountResult.length > 0
+                                            ? accountResult[0]
+                                            : null;
 
 
-                            const balance =
-                                totalIncome - totalExpense;
+                                    const totalIncome =
+                                        Number(
+                                            summaryResult[0].totalIncome
+                                        );
 
 
-                            const categoryLabels =
-                                categoryResult.map(
-                                    item => item.category
-                                );
+                                    const totalExpense =
+                                        Number(
+                                            summaryResult[0].totalExpense
+                                        );
 
 
-                            const categoryValues =
-                                categoryResult.map(
-                                    item => Number(item.total)
-                                );
+                                    const balance =
+                                        totalIncome - totalExpense;
 
 
-                            res.render("dashboard", {
+                                    const categoryLabels =
+                                        categoryResult.map(
+                                            item => item.category
+                                        );
 
-                                totalIncome,
-                                totalExpense,
-                                balance,
-                                recentTransactions,
 
-                                categoryLabels,
-                                categoryValues
+                                    const categoryValues =
+                                        categoryResult.map(
+                                            item => Number(item.total)
+                                        );
 
-                            });
+
+                                    res.render("dashboard", {
+
+                                        totalIncome,
+                                        totalExpense,
+                                        balance,
+                                        recentTransactions,
+
+                                        categoryLabels,
+                                        categoryValues,
+
+                                        sharedAccount
+
+                                    });
+
+                                }
+                            );
 
                         }
                     );

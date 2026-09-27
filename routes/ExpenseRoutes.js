@@ -9,7 +9,17 @@ router.get("/expense", (req, res) => {
 });
 
 // Add Expense
+// Add Expense
 router.post("/expense", (req, res) => {
+
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+
+    const userId = req.session.userId;
+
+    const sharedAccountId =
+        req.session.sharedAccountId || null;
 
     const {
         amount,
@@ -18,18 +28,29 @@ router.post("/expense", (req, res) => {
         transaction_date
     } = req.body;
 
-    const user_id = 1;
 
     const sql = `
         INSERT INTO transactions
-        (user_id, type, amount, category, description, transaction_date)
-        VALUES (?, 'expense', ?, ?, ?, ?)
+        (
+            user_id,
+            shared_account_id,
+            created_by,
+            type,
+            amount,
+            category,
+            description,
+            transaction_date
+        )
+        VALUES (?, ?, ?, 'expense', ?, ?, ?, ?)
     `;
+
 
     db.query(
         sql,
         [
-            user_id,
+            userId,
+            sharedAccountId,
+            userId,
             amount,
             category,
             description,
@@ -47,6 +68,7 @@ router.post("/expense", (req, res) => {
             res.redirect("/dashboard");
         }
     );
+
 });
 
 module.exports = router;
