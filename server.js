@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const expenseRoutes = require("./routes/ExpenseRoutes");
+const sharedAccountRoutes = require("./routes/sharedAccountRoutes");
 
 const db = require("./config/db");
 
@@ -50,6 +51,7 @@ app.use("/", authRoutes);
 app.use("/", transactionRoutes);
 app.use("/", incomeRoutes);
 app.use("/", expenseRoutes);
+app.use("/", sharedAccountRoutes);
 app.use("/", dashboardRoutes);
 
 // Start server

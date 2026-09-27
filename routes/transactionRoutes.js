@@ -14,7 +14,15 @@ router.get("/transaction", (req, res) => {
 // ===============================
 // Add Transaction
 // ===============================
+// Add Transaction
 router.post("/transaction", (req, res) => {
+
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+
+    const userId = req.session.userId;
+    const sharedAccountId = req.session.sharedAccountId || null;
 
     const {
         type,
@@ -24,18 +32,29 @@ router.post("/transaction", (req, res) => {
         transaction_date
     } = req.body;
 
-    const user_id = 1; // temporary user
 
     const sql = `
         INSERT INTO transactions
-        (user_id, type, amount, category, description, transaction_date)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (
+            user_id,
+            shared_account_id,
+            created_by,
+            type,
+            amount,
+            category,
+            description,
+            transaction_date
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
+
 
     db.query(
         sql,
         [
-            user_id,
+            userId,
+            sharedAccountId,
+            userId,
             type,
             amount,
             category,
@@ -54,6 +73,7 @@ router.post("/transaction", (req, res) => {
             res.redirect("/dashboard");
         }
     );
+
 });
 
 

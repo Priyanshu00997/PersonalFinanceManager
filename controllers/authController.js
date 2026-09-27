@@ -58,91 +58,186 @@ exports.loginUser = (req, res) => {
             return res.send("Invalid email or password");
         }
 
-        res.redirect("/dashboard");
+        // Store logged-in user's ID in session
+        req.session.userId = user.id;
+
+        console.log("Logged in User ID:", req.session.userId);
+
+
+        // Find user's shared account
+        const sharedAccountSql = `
+            SELECT shared_account_id
+            FROM shared_account_members
+            WHERE user_id = ?
+            LIMIT 1
+        `;
+
+        db.query(
+            sharedAccountSql,
+            [user.id],
+            (err, sharedResults) => {
+
+                if (err) {
+                    console.log("Shared Account Session Error:", err);
+                    return res.send("Database Error");
+                }
+
+                if (sharedResults.length > 0) {
+
+                    req.session.sharedAccountId =
+                        sharedResults[0].shared_account_id;
+
+                    console.log(
+                        "Shared Account ID:",
+                        req.session.sharedAccountId
+                    );
+
+                } else {
+
+                    req.session.sharedAccountId = null;
+
+                    console.log("No shared account");
+
+                }
+
+                res.redirect("/dashboard");
+
+            }
+        );
     });
 };
 exports.showDashboard = (req, res) => {
 
-    const userId = 1;
+    // Check if user is logged in
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
 
-    const summarySql = `
-        SELECT
-            COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS totalIncome,
-            COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS totalExpense
-        FROM transactions
-        WHERE user_id = ?
-    `;
-
-    const recentSql = `
-        SELECT *
-        FROM transactions
-        WHERE user_id = ?
-        ORDER BY id DESC
-        LIMIT 5
-    `;
-
-    const categorySql = `
-        SELECT
-            category,
-            SUM(amount) AS total
-        FROM transactions
-        WHERE user_id = ?
-        AND type = 'expense'
-        GROUP BY category
-        ORDER BY total DESC
-    `;
+    const userId = req.session.userId;
+    const sharedAccountId = req.session.sharedAccountId;
 
 
-    db.query(summarySql, [userId], (err, summaryResult) => {
+    // ==========================================
+    // PERSONAL ACCOUNT
+    // ==========================================
 
-        if (err) {
-            console.log("Dashboard Summary Error:", err);
-            return res.send("Dashboard Database Error");
-        }
+    if (!sharedAccountId) {
+
+        const summarySql = `
+            SELECT
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN type = 'income'
+                            THEN amount
+                            ELSE 0
+                        END
+                    ), 0
+                ) AS totalIncome,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN type = 'expense'
+                            THEN amount
+                            ELSE 0
+                        END
+                    ), 0
+                ) AS totalExpense
+
+            FROM transactions
+
+            WHERE user_id = ?
+            AND shared_account_id IS NULL
+        `;
 
 
-        db.query(recentSql, [userId], (err, recentTransactions) => {
+        const recentSql = `
+            SELECT *
+            FROM transactions
+
+            WHERE user_id = ?
+            AND shared_account_id IS NULL
+
+            ORDER BY id DESC
+
+            LIMIT 5
+        `;
+
+
+        const categorySql = `
+            SELECT
+                category,
+                SUM(amount) AS total
+
+            FROM transactions
+
+            WHERE user_id = ?
+            AND shared_account_id IS NULL
+            AND type = 'expense'
+
+            GROUP BY category
+
+            ORDER BY total DESC
+        `;
+
+
+        db.query(summarySql, [userId], (err, summaryResult) => {
 
             if (err) {
-                console.log("Recent Transactions Error:", err);
+                console.log("Dashboard Summary Error:", err);
                 return res.send("Dashboard Database Error");
             }
 
 
-            db.query(categorySql, [userId], (err, categoryResult) => {
+            db.query(recentSql, [userId], (err, recentTransactions) => {
 
                 if (err) {
-                    console.log("Category Chart Error:", err);
+                    console.log("Recent Transactions Error:", err);
                     return res.send("Dashboard Database Error");
                 }
 
 
-                const totalIncome =
-                    Number(summaryResult[0].totalIncome);
+                db.query(categorySql, [userId], (err, categoryResult) => {
 
-                const totalExpense =
-                    Number(summaryResult[0].totalExpense);
-
-                const balance =
-                    totalIncome - totalExpense;
+                    if (err) {
+                        console.log("Category Chart Error:", err);
+                        return res.send("Dashboard Database Error");
+                    }
 
 
-                const categoryLabels =
-                    categoryResult.map(item => item.category);
+                    const totalIncome =
+                        Number(summaryResult[0].totalIncome);
 
-                const categoryValues =
-                    categoryResult.map(item => Number(item.total));
+                    const totalExpense =
+                        Number(summaryResult[0].totalExpense);
+
+                    const balance =
+                        totalIncome - totalExpense;
 
 
-                res.render("dashboard", {
+                    const categoryLabels =
+                        categoryResult.map(
+                            item => item.category
+                        );
 
-                    totalIncome,
-                    totalExpense,
-                    balance,
-                    recentTransactions,
+                    const categoryValues =
+                        categoryResult.map(
+                            item => Number(item.total)
+                        );
 
-                    categoryLabels,
-                    categoryValues
+
+                    res.render("dashboard", {
+
+                        totalIncome,
+                        totalExpense,
+                        balance,
+                        recentTransactions,
+
+                        categoryLabels,
+                        categoryValues
+
+                    });
 
                 });
 
@@ -150,6 +245,163 @@ exports.showDashboard = (req, res) => {
 
         });
 
-    });
+        return;
+    }
+
+
+    // ==========================================
+    // SHARED ACCOUNT
+    // ==========================================
+
+    const summarySql = `
+        SELECT
+
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type = 'income'
+                        THEN amount
+                        ELSE 0
+                    END
+                ), 0
+            ) AS totalIncome,
+
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type = 'expense'
+                        THEN amount
+                        ELSE 0
+                    END
+                ), 0
+            ) AS totalExpense
+
+        FROM transactions
+
+        WHERE shared_account_id = ?
+    `;
+
+
+    const recentSql = `
+        SELECT *
+        FROM transactions
+
+        WHERE shared_account_id = ?
+
+        ORDER BY id DESC
+
+        LIMIT 5
+    `;
+
+
+    const categorySql = `
+        SELECT
+            category,
+            SUM(amount) AS total
+
+        FROM transactions
+
+        WHERE shared_account_id = ?
+        AND type = 'expense'
+
+        GROUP BY category
+
+        ORDER BY total DESC
+    `;
+
+
+    db.query(
+        summarySql,
+        [sharedAccountId],
+        (err, summaryResult) => {
+
+            if (err) {
+                console.log("Shared Dashboard Summary Error:", err);
+                return res.send("Dashboard Database Error");
+            }
+
+
+            db.query(
+                recentSql,
+                [sharedAccountId],
+                (err, recentTransactions) => {
+
+                    if (err) {
+                        console.log(
+                            "Shared Recent Transactions Error:",
+                            err
+                        );
+
+                        return res.send(
+                            "Dashboard Database Error"
+                        );
+                    }
+
+
+                    db.query(
+                        categorySql,
+                        [sharedAccountId],
+                        (err, categoryResult) => {
+
+                            if (err) {
+                                console.log(
+                                    "Shared Category Chart Error:",
+                                    err
+                                );
+
+                                return res.send(
+                                    "Dashboard Database Error"
+                                );
+                            }
+
+
+                            const totalIncome =
+                                Number(
+                                    summaryResult[0].totalIncome
+                                );
+
+
+                            const totalExpense =
+                                Number(
+                                    summaryResult[0].totalExpense
+                                );
+
+
+                            const balance =
+                                totalIncome - totalExpense;
+
+
+                            const categoryLabels =
+                                categoryResult.map(
+                                    item => item.category
+                                );
+
+
+                            const categoryValues =
+                                categoryResult.map(
+                                    item => Number(item.total)
+                                );
+
+
+                            res.render("dashboard", {
+
+                                totalIncome,
+                                totalExpense,
+                                balance,
+                                recentTransactions,
+
+                                categoryLabels,
+                                categoryValues
+
+                            });
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
 
 };

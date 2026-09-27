@@ -1,16 +1,39 @@
 const express = require("express");
 const router = express.Router();
-console.log("✅ INCOME ROUTES LOADED");
 
 const db = require("../config/db");
 
-// Show Add Income Page
+
+// ==========================================
+// SHOW ADD INCOME PAGE
+// ==========================================
+
 router.get("/income", (req, res) => {
+
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+
     res.render("addIncome");
+
 });
 
-// Add Income
+
+// ==========================================
+// ADD INCOME
+// ==========================================
+
 router.post("/income", (req, res) => {
+
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+
+    const userId = req.session.userId;
+
+    const sharedAccountId =
+        req.session.sharedAccountId || null;
+
 
     const {
         amount,
@@ -19,18 +42,29 @@ router.post("/income", (req, res) => {
         transaction_date
     } = req.body;
 
-    const user_id = 1;
 
     const sql = `
         INSERT INTO transactions
-        (user_id, type, amount, category, description, transaction_date)
-        VALUES (?, 'income', ?, ?, ?, ?)
+        (
+            user_id,
+            shared_account_id,
+            created_by,
+            type,
+            amount,
+            category,
+            description,
+            transaction_date
+        )
+        VALUES (?, ?, ?, 'income', ?, ?, ?, ?)
     `;
+
 
     db.query(
         sql,
         [
-            user_id,
+            userId,
+            sharedAccountId,
+            userId,
             amount,
             category,
             description,
@@ -39,15 +73,27 @@ router.post("/income", (req, res) => {
         (err) => {
 
             if (err) {
+
                 console.log("Income Error:", err);
-                return res.send("Failed to add income");
+
+                return res.send(
+                    "Failed to add income"
+                );
+
             }
 
-            console.log("✅ Income Added Successfully");
+
+            console.log(
+                "✅ Income Added Successfully"
+            );
+
 
             res.redirect("/dashboard");
+
         }
     );
+
 });
+
 
 module.exports = router;
