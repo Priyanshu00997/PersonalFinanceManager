@@ -220,7 +220,8 @@ exports.showDashboard = (req, res) => {
                         categoryLabels,
                         categoryValues,
 
-                        sharedAccount: null
+                        sharedAccount,
+                        memberNames: sharedAccount.memberNames
 
                     });
 
@@ -296,36 +297,28 @@ exports.showDashboard = (req, res) => {
 
 
     // Get shared account details
-    const accountSql = `
+        const accountSql = `
         SELECT
             sa.id,
             sa.account_name,
             sa.invite_code,
-
             COUNT(sam.user_id) AS memberCount,
-
             GROUP_CONCAT(
                 u.full_name
                 ORDER BY u.id
                 SEPARATOR ' + '
             ) AS memberNames
-
         FROM shared_accounts sa
-
         LEFT JOIN shared_account_members sam
             ON sa.id = sam.shared_account_id
-
         LEFT JOIN users u
             ON sam.user_id = u.id
-
         WHERE sa.id = ?
-
         GROUP BY
             sa.id,
             sa.account_name,
             sa.invite_code
     `;
-
 
     db.query(
         summarySql,
@@ -400,6 +393,8 @@ exports.showDashboard = (req, res) => {
                                             ? accountResult[0]
                                             : null;
 
+                                    console.log("SHARED ACCOUNT DATA:", sharedAccount);
+                                    console.log("MEMBER NAMES:", sharedAccount?.memberNames);
 
                                     const totalIncome =
                                         Number(
