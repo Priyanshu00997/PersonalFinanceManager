@@ -6,6 +6,7 @@ const db = require("../config/db");
 // ==========================================
 // SHOW SHARED ACCOUNT PAGE
 // ==========================================
+// SHOW SHARED ACCOUNT PAGE
 
 router.get("/shared-account", (req, res) => {
 
@@ -15,33 +16,115 @@ router.get("/shared-account", (req, res) => {
 
     const userId = req.session.userId;
 
-    const sql = `
+    const accountSql = `
         SELECT
             sa.id,
             sa.account_name,
-            sa.invite_code
+            sa.invite_code,
+            sa.created_by,
+            COUNT(sam.user_id) AS memberCount
+
         FROM shared_accounts sa
+
         INNER JOIN shared_account_members sam
             ON sa.id = sam.shared_account_id
+
         WHERE sam.user_id = ?
+
+        GROUP BY
+            sa.id,
+            sa.account_name,
+            sa.invite_code,
+            sa.created_by
+
         LIMIT 1
     `;
 
-    db.query(sql, [userId], (err, results) => {
 
-        if (err) {
-            console.log("Shared Account Load Error:", err);
-            return res.send("Database Error");
+    db.query(
+        accountSql,
+        [userId],
+        (err, accountResults) => {
+
+            if (err) {
+                console.log(
+                    "Shared Account Load Error:",
+                    err
+                );
+
+                return res.send("Database Error");
+            }
+
+
+            // No shared account
+            if (accountResults.length === 0) {
+
+                return res.render("sharedAccount", {
+                    sharedAccount: null,
+                    members: []
+                });
+
+            }
+
+
+            const sharedAccount = accountResults[0];
+
+
+            // Get all members
+            const membersSql = `
+                SELECT
+                    u.id,
+                    u.full_name,
+                    u.email,
+                    sam.joined_at
+
+                FROM shared_account_members sam
+
+                INNER JOIN users u
+                    ON sam.user_id = u.id
+
+                WHERE sam.shared_account_id = ?
+
+                ORDER BY
+                    sam.user_id = ? DESC,
+                    u.id ASC
+            `;
+
+
+            db.query(
+                membersSql,
+                [
+                    sharedAccount.id,
+                    sharedAccount.created_by
+                ],
+                (err, members) => {
+
+                    if (err) {
+                        console.log(
+                            "Shared Members Load Error:",
+                            err
+                        );
+
+                        return res.send(
+                            "Database Error"
+                        );
+                    }
+
+
+                    res.render("sharedAccount", {
+
+                        sharedAccount,
+                        members
+
+                    });
+
+                }
+            );
+
         }
-
-        res.render("sharedAccount", {
-            sharedAccount: results.length > 0 ? results[0] : null
-        });
-
-    });
+    );
 
 });
-
 
 // ==========================================
 // CREATE SHARED ACCOUNT
@@ -183,5 +266,98 @@ router.post("/shared-account/join", (req, res) => {
 
 });
 
+// REMOVE MEMBER FROM SHARED ACCOUNT
+router.post("/shared-account/remove-member/:userId", (req, res) => {
 
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+
+    const currentUserId = req.session.userId;
+    const memberUserId = req.params.userId;
+    const sharedAccountId = req.session.sharedAccountId;
+
+    if (!sharedAccountId) {
+        return res.redirect("/shared-account");
+    }
+
+    // Check if current user is the owner
+    const ownerSql = `
+        SELECT created_by
+        FROM shared_accounts
+        WHERE id = ?
+    `;
+
+    db.query(
+        ownerSql,
+        [sharedAccountId],
+        (err, results) => {
+
+            if (err) {
+                console.log("Owner Check Error:", err);
+                return res.send("Database Error");
+            }
+
+            if (results.length === 0) {
+                return res.send("Shared account not found");
+            }
+
+            const ownerId = results[0].created_by;
+
+            // Only owner can remove members
+            if (Number(ownerId) !== Number(currentUserId)) {
+                return res.send(
+                    "Only the shared account owner can remove members"
+                );
+            }
+
+            // Prevent owner from removing themselves
+            if (Number(memberUserId) === Number(ownerId)) {
+                return res.send(
+                    "The account owner cannot be removed"
+                );
+            }
+
+            const deleteSql = `
+                DELETE FROM shared_account_members
+                WHERE shared_account_id = ?
+                AND user_id = ?
+            `;
+
+            db.query(
+                deleteSql,
+                [sharedAccountId, memberUserId],
+                (err, result) => {
+
+                    if (err) {
+                        console.log(
+                            "Remove Member Error:",
+                            err
+                        );
+
+                        return res.send(
+                            "Failed to remove member"
+                        );
+                    }
+
+                    if (result.affectedRows === 0) {
+                        return res.send(
+                            "Member not found"
+                        );
+                    }
+
+                    console.log(
+                        "✅ Member Removed:",
+                        memberUserId
+                    );
+
+                    res.redirect("/shared-account");
+
+                }
+            );
+
+        }
+    );
+
+});
 module.exports = router;

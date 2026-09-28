@@ -1,125 +1,323 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Shared Account</title>
+    <meta charset="UTF-8">
 
-    <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Shared Account - Personal Finance Manager</title>
+
 
     <style>
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 40px;
+            padding: 0;
+            font-family: Arial, sans-serif;
         }
+
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
 
         .container {
-            max-width: 700px;
-            margin: auto;
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
+
+        .header {
+            margin-bottom: 25px;
         }
+
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+
+        .header p {
+            color: #6b7280;
+        }
+
 
         .card {
             background: white;
             padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+            margin-bottom: 20px;
         }
 
-        .card h2 {
-            margin-top: 0;
-        }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            background: #2563eb;
-            color: white;
+        .status {
             font-size: 16px;
-            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 15px;
         }
 
-        button:hover {
-            background: #1d4ed8;
+
+        .account-name {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
 
-        .account-info {
-            background: #eef4ff;
-            padding: 20px;
-            border-radius: 8px;
+
+        .invite-box {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
             margin-top: 15px;
         }
 
+
         .invite-code {
-            font-size: 28px;
+            font-size: 25px;
             font-weight: bold;
-            letter-spacing: 4px;
-            text-align: center;
-            margin: 15px 0;
+            letter-spacing: 3px;
+            margin-top: 7px;
         }
 
-        .back {
-            display: block;
-            text-align: center;
+
+        .members-title {
+            font-size: 21px;
+            margin-bottom: 15px;
+        }
+
+
+        .member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #eeeeee;
+            gap: 15px;
+        }
+
+
+        .member:last-child {
+            border-bottom: none;
+        }
+
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .member-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eef2ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+
+        .member-name {
+            font-weight: 600;
+        }
+
+
+        .member-email {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+
+        .owner-badge {
+            display: inline-block;
+            margin-left: 7px;
+            padding: 4px 8px;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+
+        .remove-btn {
+            border: none;
+            background: #ef4444;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+
+        .remove-btn:hover {
+            background: #dc2626;
+        }
+
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
             margin-top: 20px;
+        }
+
+
+        .btn {
+            display: inline-block;
             text-decoration: none;
-            color: #2563eb;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            background: #111827;
+        }
+
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+
+        .back-btn {
+            background: #4b5563;
+        }
+
+
+        .create-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+
+        .form-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+
+        .form-btn {
+            width: 100%;
+            background: #2563eb;
+        }
+
+
+        .join-btn {
+            background: #16a34a;
+        }
+
+
+        @media (max-width: 700px) {
+
+            .container {
+                margin: 25px auto;
+            }
+
+            .create-section {
+                grid-template-columns: 1fr;
+            }
+
+            .member {
+                align-items: flex-start;
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
+
 
 <div class="container">
 
-    <h1>👫 Shared Account</h1>
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>👫 Shared Account</h1>
+
+        <p>
+            Manage your shared financial account and members.
+        </p>
+
+    </div>
 
 
     <% if (sharedAccount) { %>
 
+
+        <!-- ACCOUNT DETAILS -->
+
         <div class="card">
 
-            <h2>Your Shared Account</h2>
+            <div class="status">
+                🟢 Shared Account Connected
+            </div>
 
-            <div class="account-info">
 
-                <p>
-                    <strong>Account Name:</strong>
-                    <%= sharedAccount.account_name %>
-                </p>
+            <div class="account-name">
+                <%= sharedAccount.account_name %>
+            </div>
 
-                <p>
-                    <strong>Invite Code:</strong>
-                </p>
+
+            <p>
+                👥
+                <strong>
+                    <%= sharedAccount.memberCount %>
+                </strong>
+                Members
+            </p>
+
+
+            <div class="invite-box">
+
+                <div>
+                    🔑 Invite Code
+                </div>
 
                 <div class="invite-code">
                     <%= sharedAccount.invite_code %>
                 </div>
 
-                <p>
-                    Share this code with your partner so they
-                    can join this account.
+                <p style="margin-top:8px; color:#6b7280;">
+                    Share this code with your partner to join.
                 </p>
 
             </div>
@@ -127,60 +325,202 @@
         </div>
 
 
+
+        <!-- MEMBERS -->
+
+        <div class="card">
+
+            <h2 class="members-title">
+                👥 Account Members
+            </h2>
+
+
+            <% members.forEach(member => { %>
+
+                <div class="member">
+
+                    <div class="member-info">
+
+                        <div class="member-icon">
+                            👤
+                        </div>
+
+
+                        <div>
+
+                            <div class="member-name">
+
+                                <%= member.full_name %>
+
+
+                                <% if (
+                                    Number(member.id) ===
+                                    Number(sharedAccount.created_by)
+                                ) { %>
+
+                                    <span class="owner-badge">
+                                        OWNER
+                                    </span>
+
+                                <% } %>
+
+                            </div>
+
+
+                            <div class="member-email">
+                                <%= member.email %>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Remove button only for owner -->
+
+                    <% if (
+                        Number(sharedAccount.created_by) ===
+                        Number(member.id)
+                    ) { %>
+
+                        <!-- Owner cannot remove themselves -->
+
+                    <% } else { %>
+
+                        <form
+                            action="/shared-account/remove-member/<%= member.id %>"
+                            method="POST"
+                            onsubmit="return confirm(
+                                'Are you sure you want to remove this member?'
+                            );"
+                        >
+
+                            <button
+                                type="submit"
+                                class="remove-btn"
+                            >
+                                Remove
+                            </button>
+
+                        </form>
+
+                    <% } %>
+
+                </div>
+
+            <% }); %>
+
+        </div>
+
+
     <% } else { %>
 
-        <div class="card">
 
-            <h2>➕ Create Shared Account</h2>
+        <!-- CREATE / JOIN -->
 
-            <form action="/shared-account/create" method="POST">
+        <div class="create-section">
 
-                <input
-                    type="text"
-                    name="account_name"
-                    placeholder="Account name"
-                    required
+
+            <!-- CREATE -->
+
+            <div class="card">
+
+                <h2 class="form-title">
+                    ➕ Create Shared Account
+                </h2>
+
+                <p style="color:#6b7280; margin-bottom:15px;">
+                    Create an account and invite your partner.
+                </p>
+
+
+                <form
+                    action="/shared-account/create"
+                    method="POST"
                 >
 
-                <button type="submit">
-                    Create Shared Account
-                </button>
+                    <input
+                        type="text"
+                        name="account_name"
+                        placeholder="Account name"
+                        required
+                    >
 
-            </form>
+
+                    <button
+                        type="submit"
+                        class="btn form-btn"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+            </div>
+
+
+
+            <!-- JOIN -->
+
+            <div class="card">
+
+                <h2 class="form-title">
+                    🔗 Join Shared Account
+                </h2>
+
+                <p style="color:#6b7280; margin-bottom:15px;">
+                    Enter the invite code shared with you.
+                </p>
+
+
+                <form
+                    action="/shared-account/join"
+                    method="POST"
+                >
+
+                    <input
+                        type="text"
+                        name="invite_code"
+                        placeholder="Enter invite code"
+                        maxlength="20"
+                        required
+                    >
+
+
+                    <button
+                        type="submit"
+                        class="btn form-btn join-btn"
+                    >
+                        Join Account
+                    </button>
+
+                </form>
+
+            </div>
+
 
         </div>
 
-
-        <div class="card">
-
-            <h2>🔗 Join Shared Account</h2>
-
-            <form action="/shared-account/join" method="POST">
-
-                <input
-                    type="text"
-                    name="invite_code"
-                    placeholder="Enter 6-digit invite code"
-                    maxlength="6"
-                    required
-                >
-
-                <button type="submit">
-                    Join Shared Account
-                </button>
-
-            </form>
-
-        </div>
 
     <% } %>
 
 
-    <a href="/dashboard" class="back">
-        ← Back to Dashboard
-    </a>
+    <!-- BACK BUTTON -->
+
+    <div class="buttons">
+
+        <a
+            href="/dashboard"
+            class="btn back-btn"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
 
 </div>
+
 
 </body>
 

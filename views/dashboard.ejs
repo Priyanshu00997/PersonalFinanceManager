@@ -488,6 +488,49 @@
             }
 
         }
+        .shared-account-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 22px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+
+        .shared-account-status {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .shared-account-card h3 {
+            margin: 8px 0;
+            font-size: 21px;
+        }
+
+        .shared-account-card p {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .shared-account-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .shared-account-btn:hover {
+            opacity: 0.9;
+        }
+
+        .personal-account {
+            background: #fafafa;
+        }
         
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -528,6 +571,54 @@
 
         </div>
 
+        <!-- ================= SHARED ACCOUNT ================= -->
+
+            <% if (sharedAccount) { %>
+
+            <div class="shared-account-card">
+
+                <div class="shared-account-status">
+                    🟢 Shared Account Connected
+                </div>
+
+                <h3>
+                    <%= sharedAccount.member_Names %>
+                </h3>
+
+                <p>
+                    👥 <%= sharedAccount.memberCount %> Members
+                </p>
+
+                <p>
+                    🔑 Invite Code:
+                    <strong><%= sharedAccount.invite_code %></strong>
+                </p>
+
+                <a href="/shared-account" class="shared-account-btn">
+                    Manage Shared Account
+                </a>
+
+            </div>
+
+            <% } else { %>
+
+            <div class="shared-account-card personal-account">
+
+                <div class="shared-account-status">
+                    ⚪ Personal Account
+                </div>
+
+                <p>
+                    No shared account connected.
+                </p>
+
+                <a href="/shared-account" class="shared-account-btn">
+                    Create / Join Shared Account
+                </a>
+
+            </div>
+
+            <% } %>
 
         <!-- ================= FINANCIAL SUMMARY ================= -->
 

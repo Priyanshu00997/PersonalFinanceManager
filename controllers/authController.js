@@ -165,24 +165,6 @@ exports.showDashboard = (req, res) => {
             LIMIT 5
         `;
 
-
-        const categorySql = `
-            SELECT
-                category,
-                SUM(amount) AS total
-
-            FROM transactions
-
-            WHERE user_id = ?
-            AND shared_account_id IS NULL
-            AND type = 'expense'
-
-            GROUP BY category
-
-            ORDER BY total DESC
-        `;
-
-
         db.query(summarySql, [userId], (err, summaryResult) => {
 
             if (err) {
@@ -319,12 +301,22 @@ exports.showDashboard = (req, res) => {
             sa.id,
             sa.account_name,
             sa.invite_code,
-            COUNT(sam.user_id) AS memberCount
+
+            COUNT(sam.user_id) AS memberCount,
+
+            GROUP_CONCAT(
+                u.full_name
+                ORDER BY u.id
+                SEPARATOR ' + '
+            ) AS memberNames
 
         FROM shared_accounts sa
 
         LEFT JOIN shared_account_members sam
             ON sa.id = sam.shared_account_id
+
+        LEFT JOIN users u
+            ON sam.user_id = u.id
 
         WHERE sa.id = ?
 
