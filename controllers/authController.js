@@ -9,6 +9,7 @@ exports.showLogin = (req, res) => {
 };
 
 exports.registerUser = (req, res) => {
+
     const { fullname, email, password } = req.body;
 
     const sql = `
@@ -16,15 +17,34 @@ exports.registerUser = (req, res) => {
         VALUES (?, ?, ?)
     `;
 
-    db.query(sql, [fullname, email, password], (err) => {
-        if (err) {
-            console.log(err);
-            return res.send("Registration Failed");
-        }
+    db.query(
+        sql,
+        [fullname, email, password],
+        (err) => {
 
-        res.redirect("/login");
-    });
+            if (err) {
+
+                console.log("REGISTRATION ERROR:", err);
+
+                // Duplicate email
+                if (err.code === "ER_DUP_ENTRY") {
+                    return res.send(
+                        "This email is already registered. Please use another email."
+                    );
+                }
+
+                return res.send(
+                    "Registration Failed: " + err.message
+                );
+            }
+
+            console.log("✅ Registration Successful");
+
+            res.redirect("/login");
+        }
+    );
 };
+
 exports.loginUser = (req, res) => {
 
     console.log("LOGIN FUNCTION CALLED");
@@ -122,117 +142,7 @@ exports.showDashboard = (req, res) => {
     // PERSONAL ACCOUNT
     // ==========================================
 
-    if (!sharedAccountId) {
-
-        const summarySql = `
-            SELECT
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN type = 'income'
-                            THEN amount
-                            ELSE 0
-                        END
-                    ), 0
-                ) AS totalIncome,
-
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN type = 'expense'
-                            THEN amount
-                            ELSE 0
-                        END
-                    ), 0
-                ) AS totalExpense
-
-            FROM transactions
-
-            WHERE user_id = ?
-            AND shared_account_id IS NULL
-        `;
-
-
-        const recentSql = `
-            SELECT *
-            FROM transactions
-
-            WHERE user_id = ?
-            AND shared_account_id IS NULL
-
-            ORDER BY id DESC
-
-            LIMIT 5
-        `;
-
-        db.query(summarySql, [userId], (err, summaryResult) => {
-
-            if (err) {
-                console.log("Dashboard Summary Error:", err);
-                return res.send("Dashboard Database Error");
-            }
-
-
-            db.query(recentSql, [userId], (err, recentTransactions) => {
-
-                if (err) {
-                    console.log("Recent Transactions Error:", err);
-                    return res.send("Dashboard Database Error");
-                }
-
-
-                db.query(categorySql, [userId], (err, categoryResult) => {
-
-                    if (err) {
-                        console.log("Category Chart Error:", err);
-                        return res.send("Dashboard Database Error");
-                    }
-
-
-                    const totalIncome =
-                        Number(summaryResult[0].totalIncome);
-
-                    const totalExpense =
-                        Number(summaryResult[0].totalExpense);
-
-                    const balance =
-                        totalIncome - totalExpense;
-
-
-                    const categoryLabels =
-                        categoryResult.map(
-                            item => item.category
-                        );
-
-                    const categoryValues =
-                        categoryResult.map(
-                            item => Number(item.total)
-                        );
-
-
-                    res.render("dashboard", {
-
-                        totalIncome,
-                        totalExpense,
-                        balance,
-                        recentTransactions,
-
-                        categoryLabels,
-                        categoryValues,
-
-                        sharedAccount,
-                        memberNames: sharedAccount.memberNames
-
-                    });
-
-                });
-
-            });
-
-        });
-
-        return;
-    }
+   
 
 
     // ==========================================
