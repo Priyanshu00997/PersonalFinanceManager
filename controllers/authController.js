@@ -142,7 +142,141 @@ exports.showDashboard = (req, res) => {
     // PERSONAL ACCOUNT
     // ==========================================
 
-   
+        if (!sharedAccountId) {
+
+            const summarySql = `
+                SELECT
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN type = 'income'
+                                THEN amount
+                                ELSE 0
+                            END
+                        ), 0
+                    ) AS totalIncome,
+
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN type = 'expense'
+                                THEN amount
+                                ELSE 0
+                            END
+                        ), 0
+                    ) AS totalExpense
+
+                FROM transactions
+
+                WHERE user_id = ?
+                AND shared_account_id IS NULL
+            `;
+
+
+            const recentSql = `
+                SELECT
+                    transactions.*,
+                    users.full_name AS created_by_name
+
+                FROM transactions
+
+                LEFT JOIN users
+                    ON transactions.created_by = users.id
+
+                WHERE transactions.user_id = ?
+                AND transactions.shared_account_id IS NULL
+
+                ORDER BY transactions.id DESC
+
+                LIMIT 5
+            `;
+
+
+            const categorySql = `
+                SELECT
+                    category,
+                    SUM(amount) AS total
+
+                FROM transactions
+
+                WHERE user_id = ?
+                AND shared_account_id IS NULL
+                AND type = 'expense'
+
+                GROUP BY category
+
+                ORDER BY total DESC
+            `;
+
+
+            db.query(summarySql, [userId], (err, summaryResult) => {
+
+                if (err) {
+                    console.log("Dashboard Summary Error:", err);
+                    return res.send("Dashboard Database Error");
+                }
+
+
+                db.query(recentSql, [userId], (err, recentTransactions) => {
+
+                    if (err) {
+                        console.log("Recent Transactions Error:", err);
+                        return res.send("Dashboard Database Error");
+                    }
+
+
+                    db.query(categorySql, [userId], (err, categoryResult) => {
+
+                        if (err) {
+                            console.log("Category Chart Error:", err);
+                            return res.send("Dashboard Database Error");
+                        }
+
+
+                        const totalIncome =
+                            Number(summaryResult[0].totalIncome);
+
+                        const totalExpense =
+                            Number(summaryResult[0].totalExpense);
+
+                        const balance =
+                            totalIncome - totalExpense;
+
+
+                        const categoryLabels =
+                            categoryResult.map(
+                                item => item.category
+                            );
+
+                        const categoryValues =
+                            categoryResult.map(
+                                item => Number(item.total)
+                            );
+
+
+                        res.render("dashboard", {
+
+                            totalIncome,
+                            totalExpense,
+                            balance,
+                            recentTransactions,
+
+                            categoryLabels,
+                            categoryValues,
+
+                            sharedAccount: null
+
+                        });
+
+                    });
+
+                });
+
+            });
+
+            return;
+        }
+    
 
 
     // ==========================================
@@ -179,12 +313,16 @@ exports.showDashboard = (req, res) => {
 
 
     const recentSql = `
-        SELECT *
+        SELECT
+            transactions.*,
+            users.full_name AS created_by_name
         FROM transactions
+        LEFT JOIN users
+            ON transactions.created_by = users.id
 
-        WHERE shared_account_id = ?
+        WHERE transactions.shared_account_id = ?
 
-        ORDER BY id DESC
+        ORDER BY transactions.id DESC
 
         LIMIT 5
     `;

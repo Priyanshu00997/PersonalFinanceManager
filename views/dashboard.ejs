@@ -531,6 +531,11 @@
         .personal-account {
             background: #fafafa;
         }
+
+        .added-by {
+            font-size: 13px;
+            font-weight: 600;
+        }
         
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -781,6 +786,7 @@
                                 <th>Amount</th>
                                 <th>Category</th>
                                 <th>Description</th>
+                                <th>Added By</th>
                                 <th>Action</th>
                                 <th>Date</th>
 
@@ -835,11 +841,17 @@
 
 
                                     <!-- Description -->
-
                                     <td>
 
                                         <%= transaction.description || "-" %>
 
+                                    </td>
+
+                                    <!-- Added By -->
+                                    <td>
+                                        <span class="added-by">
+                                            <%= transaction.created_by_name || "Unknown" %>
+                                        </span>
                                     </td>
 
 
